@@ -175,23 +175,25 @@ function pageGetCaptionTracks(videoId) {
 // This function runs INSIDE the YouTube page to call InnerTube
 async function pageCallInnerTube(videoId) {
   try {
-    // Get API key from page config
-    const apiKey =
-      window.ytcfg?.get?.('INNERTUBE_API_KEY') ||
-      window.yt?.config_?.INNERTUBE_API_KEY ||
-      'AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8';
+    // Use WEB client — ANDROID client no longer returns captions reliably
+    const clientVersion =
+      window.ytcfg?.get?.('INNERTUBE_CLIENT_VERSION') ||
+      '2.20250101.00.00';
 
     const res = await fetch(
-      `/youtubei/v1/player?key=${apiKey}&prettyPrint=false`,
+      `/youtubei/v1/player?prettyPrint=false`,
       {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Youtube-Client-Name': '1',
+          'X-Youtube-Client-Version': clientVersion,
+        },
         body: JSON.stringify({
           context: {
             client: {
-              clientName: 'ANDROID',
-              clientVersion: '20.10.38',
-              androidSdkVersion: 33,
+              clientName: 'WEB',
+              clientVersion,
               hl: 'en',
               gl: 'US',
             },
